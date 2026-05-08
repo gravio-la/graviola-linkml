@@ -6,6 +6,7 @@ from typing import Optional
 import typer
 
 from graviola_linkml.generators.json_schema import GraviolaJsonSchemaGenerator
+from graviola_linkml.generators.side_schema import GraviolaSideSchemaGenerator
 
 app = typer.Typer(help="Generate Graviola schemas from LinkML YAML definitions.")
 
@@ -30,6 +31,29 @@ def generate(
     result = gen.serialize()
 
     out_path = output or schema.with_suffix("").with_suffix(".schema.json")
+    out_path.write_text(result, encoding="utf-8")
+    typer.echo(f"Written: {out_path}")
+
+
+@app.command(name="side-schema")
+def side_schema(
+    schema: Path = typer.Argument(..., help="Path to the LinkML YAML schema file."),
+    output: Optional[Path] = typer.Option(
+        None,
+        "--output",
+        "-o",
+        help="Output path. Defaults to <schema-stem>.gra.side-schema.json next to the input.",
+    ),
+) -> None:
+    """Generate a Graviola side-schema JSON (primaryFields, labels, UI overrides) from a LinkML YAML schema."""
+    if not schema.exists():
+        typer.echo(f"Error: schema file not found: {schema}", err=True)
+        raise typer.Exit(1)
+
+    gen = GraviolaSideSchemaGenerator(str(schema))
+    result = gen.serialize()
+
+    out_path = output or schema.with_suffix("").with_suffix(".gra.side-schema.json")
     out_path.write_text(result, encoding="utf-8")
     typer.echo(f"Written: {out_path}")
 
