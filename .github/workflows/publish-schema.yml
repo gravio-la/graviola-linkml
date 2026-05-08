@@ -47,26 +47,19 @@ jobs:
             > dist/graviola-annotations.jsonld
 
           # HTML documentation:
-          # 1. gen-doc emits flat markdown (one .md per term + index.md) into a temp dir.
-          # 2. mkdocs-material converts that to flat HTML (use_directory_urls: false keeps
-          #    filenames aligned with the .htaccess rewrite rules).
+          # gen-doc emits flat markdown into annotation-vocab/docs/; mkdocs-material
+          # converts that to flat HTML (use_directory_urls: false keeps filenames
+          # aligned with the .htaccess rewrite rules). Config: annotation-vocab/mkdocs.yml.
           .venv/bin/gen-doc \
             annotation-vocab/graviola-annotations.yaml \
             --format markdown \
-            --directory /tmp/gra-md/
+            --directory annotation-vocab/docs/
 
-          cat > /tmp/mkdocs.yml <<'EOF'
-site_name: Graviola Annotation Vocabulary
-site_url: https://graviola.gra.one/schema/
-docs_dir: /tmp/gra-md
-site_dir: /tmp/gra-site
-theme:
-  name: material
-use_directory_urls: false
-EOF
+          .venv/bin/mkdocs build \
+            --config-file annotation-vocab/mkdocs.yml \
+            --quiet
 
-          .venv/bin/mkdocs build --config-file /tmp/mkdocs.yml --quiet
-          cp -r /tmp/gra-site/. dist/
+          cp -r annotation-vocab/site/. dist/
 
           # Source YAML — importable by downstream LinkML schemas
           cp annotation-vocab/graviola-annotations.yaml \

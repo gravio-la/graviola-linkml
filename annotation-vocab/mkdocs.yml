@@ -1,0 +1,7 @@
+site_name: Graviola Annotation Vocabulary
+site_url: https://graviola.gra.one/schema/
+docs_dir: docs
+site_dir: site
+theme:
+  name: material
+use_directory_urls: false
