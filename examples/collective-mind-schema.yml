@@ -1,0 +1,99 @@
+id: https://example.org/collective-mind/
+name: collective-mind-schema
+prefixes:
+  linkml: https://w3id.org/linkml/
+  ex: https://example.org/collective-mind/
+  gra: https://graviola.gra.one/schema/
+default_prefix: ex
+default_range: string
+imports:
+  - linkml:types
+
+classes:
+  Individual:
+    class_uri: ex:Individual
+    annotations:
+      gra:label: "Individual Being"
+      gra:primaryLabel: name
+    slots:
+      - name
+      - embodiedMind
+      - memberOf
+    slot_usage:
+      name:
+        required: true
+        annotations:
+          gra:label: "Display Name"
+
+  Mind:
+    class_uri: ex:Mind
+    slots:
+      - hostBody
+      - soul
+
+  Body:
+    class_uri: ex:Body
+    slots:
+      - vesselName
+      - hostedMinds
+    slot_usage:
+      vesselName:
+        required: true
+
+  Soul:
+    class_uri: ex:Soul
+    slots:
+      - quality
+
+  Collective:
+    class_uri: ex:Collective
+    annotations:
+      gra:label: "Collective"
+      gra:primaryLabel: title
+    slots:
+      - title
+      - members
+    slot_usage:
+      title:
+        required: true
+
+slots:
+  name:
+    range: string
+
+  title:
+    range: string
+
+  quality:
+    range: string
+
+  vesselName:
+    range: string
+
+  embodiedMind:
+    range: Mind
+    inlined: true
+
+  hostBody:
+    range: Body
+    inlined: true
+    inverse: hostedMinds
+
+  hostedMinds:
+    range: Mind
+    multivalued: true
+    inlined: true
+
+  memberOf:
+    range: Collective
+    inlined: true
+    inverse: members
+
+  members:
+    range: Individual
+    multivalued: true
+    inlined: true
+
+  soul:
+    range: Soul
+    inlined: true

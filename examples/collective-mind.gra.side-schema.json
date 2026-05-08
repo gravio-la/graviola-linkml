@@ -1,0 +1,14 @@
+{
+  "primaryFields": {
+    "Individual": {
+      "label": "name"
+    },
+    "Collective": {
+      "label": "title"
+    }
+  },
+  "typeNameLabelMap": {
+    "Individual": "Individual Being",
+    "Collective": "Collective"
+  }
+}

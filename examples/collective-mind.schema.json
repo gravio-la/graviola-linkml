@@ -1,0 +1,110 @@
+{
+  "type": "object",
+  "definitions": {
+    "Body": {
+      "properties": {
+        "@id": {
+          "type": "string"
+        },
+        "@type": {
+          "const": "https://example.org/collective-mind/Body",
+          "type": "string"
+        },
+        "hostedMinds": {
+          "items": {
+            "$ref": "#/definitions/Mind"
+          },
+          "type": "array"
+        },
+        "vesselName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "vesselName"
+      ],
+      "type": "object"
+    },
+    "Collective": {
+      "properties": {
+        "@id": {
+          "type": "string"
+        },
+        "@type": {
+          "const": "https://example.org/collective-mind/Collective",
+          "type": "string"
+        },
+        "members": {
+          "items": {
+            "$ref": "#/definitions/Individual"
+          },
+          "type": "array"
+        },
+        "title": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "title"
+      ],
+      "type": "object"
+    },
+    "Individual": {
+      "properties": {
+        "@id": {
+          "type": "string"
+        },
+        "@type": {
+          "const": "https://example.org/collective-mind/Individual",
+          "type": "string"
+        },
+        "embodiedMind": {
+          "$ref": "#/definitions/Mind"
+        },
+        "memberOf": {
+          "$ref": "#/definitions/Collective"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "type": "object"
+    },
+    "Mind": {
+      "properties": {
+        "@id": {
+          "type": "string"
+        },
+        "@type": {
+          "const": "https://example.org/collective-mind/Mind",
+          "type": "string"
+        },
+        "hostBody": {
+          "$ref": "#/definitions/Body"
+        },
+        "soul": {
+          "$ref": "#/definitions/Soul"
+        }
+      },
+      "type": "object"
+    },
+    "Soul": {
+      "properties": {
+        "@id": {
+          "type": "string"
+        },
+        "@type": {
+          "const": "https://example.org/collective-mind/Soul",
+          "type": "string"
+        },
+        "quality": {
+          "type": "string"
+        }
+      },
+      "type": "object"
+    }
+  }
+}
