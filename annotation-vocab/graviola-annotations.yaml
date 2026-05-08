@@ -1,0 +1,165 @@
+id: https://graviola.gra.one/schema/
+name: graviola-annotation-vocabulary
+description: >-
+  Annotation vocabulary for Graviola schema-driven UI generation.
+  Apply these annotations to LinkML class and slot definitions to
+  control form rendering, detail-view layout, and entity display.
+  Import this schema to make LinkML validators recognise gra: tags.
+version: "0.1.0"
+
+prefixes:
+  linkml: https://w3id.org/linkml/
+  gra:    https://graviola.gra.one/schema/
+  owl:    http://www.w3.org/2002/07/owl#
+  rdfs:   http://www.w3.org/2000/01/rdf-schema#
+  xsd:    http://www.w3.org/2001/XMLSchema#
+
+default_prefix: gra
+default_range: string
+
+imports:
+  - linkml:types
+
+# ---------- Subsets --------------------------------------------------------
+
+subsets:
+  ClassAnnotations:
+    description: "Applied at class level (in annotations: block)"
+  SlotAnnotations:
+    description: >-
+      Applied at slot level (in slot_usage entries).
+      Structured values require the explicit value key because
+      linkml-runtime parses bare mappings as Annotation constructor kwargs.
+
+# ---------- Enums ----------------------------------------------------------
+
+enums:
+  DisplayAsEnum:
+    description: >-
+      Controls how an entity type renders when referenced by another entity
+      in a form. Mapped to typeNameUiSchemaOptionsMap in TypeScript.
+    permissible_values:
+      dropdown:
+        description: Render as an autocomplete dropdown picker
+      chips:
+        description: Render as a tag chip list
+
+# ---------- Structured value classes ---------------------------------------
+
+classes:
+
+  FormControlOptions:
+    description: Options passed to a JSON Forms ControlElement for form rendering.
+    attributes:
+      dropdown:
+        range: boolean
+        description: Render referenced entity as an autocomplete dropdown
+      chips:
+        range: boolean
+        description: Render referenced entity as a tag chip list
+
+  FormAnnotation:
+    description: >-
+      Form rendering override for a slot within a specific class context.
+      Applied via slot_usage annotations.
+      Mapped to uischemaScopeOverrides[ClassName].scopeOverride in TypeScript.
+    attributes:
+      label:
+        range: string
+        description: Label override for the generated JSON Forms ControlElement
+      options:
+        range: FormControlOptions
+        inlined: true
+        description: JSON Forms ControlElement options (dropdown, chips, …)
+
+  DetailAnnotation:
+    description: >-
+      Detail-view rendering override for a slot within a specific class context.
+      Applied via slot_usage annotations.
+      Mapped to detailUiSchemaScopeOverrides[ClassName] in TypeScript.
+    attributes:
+      skip:
+        range: boolean
+        description: >-
+          If true, this slot is excluded from the detail view.
+          Adds the slot scope to skipScope[].
+      label:
+        range: string
+        description: Label override for the detail-view ControlElement
+
+# ---------- Annotation slots -----------------------------------------------
+
+slots:
+
+  # ── class-level ──────────────────────────────────────────────────────────
+
+  label:
+    slot_uri: gra:label
+    range: string
+    in_subset:
+      - ClassAnnotations
+    description: >-
+      Human-readable UI label for this entity type.
+      Mapped to typeNameLabelMap[ClassName] in TypeScript.
+
+  displayAs:
+    slot_uri: gra:displayAs
+    range: DisplayAsEnum
+    in_subset:
+      - ClassAnnotations
+    description: >-
+      Rendering hint controlling how this type appears when referenced
+      by another entity in a form.
+      Mapped to typeNameUiSchemaOptionsMap[ClassName] in TypeScript.
+
+  primaryLabel:
+    slot_uri: gra:primaryLabel
+    range: string
+    in_subset:
+      - ClassAnnotations
+    description: >-
+      Name of the slot to use as the entity's display label.
+      Mapped to primaryFields[ClassName].label in TypeScript.
+
+  primaryDescription:
+    slot_uri: gra:primaryDescription
+    range: string
+    in_subset:
+      - ClassAnnotations
+    description: >-
+      Name of the slot to use as the entity's display description.
+      Mapped to primaryFields[ClassName].description in TypeScript.
+
+  primaryImage:
+    slot_uri: gra:primaryImage
+    range: string
+    in_subset:
+      - ClassAnnotations
+    description: >-
+      Name of the slot to use as the entity's display image.
+      For multivalued slots only the first value is used; ordering is store-defined.
+      Mapped to primaryFields[ClassName].image in TypeScript.
+
+  # ── slot-level (apply in slot_usage; use explicit "value:" key) ──────────
+
+  form:
+    slot_uri: gra:form
+    range: FormAnnotation
+    inlined: true
+    in_subset:
+      - SlotAnnotations
+    description: >-
+      Form rendering override for this slot in this class context.
+      Mapped to uischemaScopeOverrides[ClassName].scopeOverride[#/properties/<slot>]
+      in TypeScript.
+
+  detail:
+    slot_uri: gra:detail
+    range: DetailAnnotation
+    inlined: true
+    in_subset:
+      - SlotAnnotations
+    description: >-
+      Detail-view rendering override for this slot in this class context.
+      Mapped to detailUiSchemaScopeOverrides[ClassName].{skipScope, scopeOverride}
+      in TypeScript.
