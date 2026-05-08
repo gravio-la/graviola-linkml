@@ -11,26 +11,26 @@ RewriteEngine On
 # ── Namespace document (requests to /schema/) ─────────────────────────────
 
 RewriteCond %{HTTP_ACCEPT} "text/turtle" [NC]
-RewriteRule ^$ graviola-annotations.ttl [R=303,L]
+RewriteRule ^$ /schema/graviola-annotations.ttl [R=303,L]
 
 RewriteCond %{HTTP_ACCEPT} "application/ld\+json" [NC]
-RewriteRule ^$ graviola-annotations.jsonld [R=303,L]
+RewriteRule ^$ /schema/graviola-annotations.jsonld [R=303,L]
 
-RewriteCond %{HTTP_ACCEPT} "application/yaml|text/yaml" [NC]
-RewriteRule ^$ graviola-annotations.yaml [R=303,L]
+RewriteCond %{HTTP_ACCEPT} "application/yaml|application/x-yaml|text/yaml" [NC]
+RewriteRule ^$ /schema/graviola-annotations.yaml [R=303,L]
 
 # Default: human-readable HTML overview
-RewriteRule ^$ index.html [R=303,L]
+RewriteRule ^$ /schema/index.html [R=303,L]
 
 # ── Individual term IRIs (e.g. /schema/label, /schema/displayAs) ──────────
 # Semantic consumers: serve the full Turtle or JSON-LD (fragment is client-side).
 # HTML consumers: per-term page from gen-doc (flat layout, no subdirs).
 
 RewriteCond %{HTTP_ACCEPT} "text/turtle" [NC]
-RewriteRule ^([a-zA-Z][a-zA-Z0-9_-]*)$ graviola-annotations.ttl [R=303,L]
+RewriteRule ^([a-zA-Z][a-zA-Z0-9_-]*)$ /schema/graviola-annotations.ttl [R=303,L]
 
 RewriteCond %{HTTP_ACCEPT} "application/ld\+json" [NC]
-RewriteRule ^([a-zA-Z][a-zA-Z0-9_-]*)$ graviola-annotations.jsonld [R=303,L]
+RewriteRule ^([a-zA-Z][a-zA-Z0-9_-]*)$ /schema/graviola-annotations.jsonld [R=303,L]
 
 # Default: each term has its own flat HTML page
-RewriteRule ^([a-zA-Z][a-zA-Z0-9_-]*)$ $1.html [R=303,L]
+RewriteRule ^([a-zA-Z][a-zA-Z0-9_-]*)$ /schema/$1.html [R=303,L]
