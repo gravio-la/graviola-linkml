@@ -1,0 +1,124 @@
+# LinkML fixture mirroring apps/testapp/src/item-schema.ts
+# Four types: Category, Item, Tag, Vendor
+id: http://www.example.org/example/
+name: item-schema
+prefixes:
+  linkml: https://w3id.org/linkml/
+  ex: http://www.example.org/example/
+default_prefix: ex
+default_range: string
+imports:
+  - linkml:types
+
+classes:
+
+  Category:
+    class_uri: ex:Category
+    slots:
+      - name
+      - description
+      - image
+      - basePrice
+      - subCategories
+      - parentCategory
+    slot_usage:
+      name:
+        required: true
+
+  Item:
+    class_uri: ex:Item
+    slots:
+      - name
+      - description
+      - parent
+      - photos
+      - condition
+      - category
+      - vendor
+      - tags
+      - basePrice
+      - isAvailable
+
+  Tag:
+    class_uri: ex:Tag
+    slots:
+      - name
+      - description
+      - image
+
+  Vendor:
+    class_uri: ex:Vendor
+    slots:
+      - name
+      - description
+      - website
+      - email
+      - address
+      - logo
+    slot_usage:
+      name:
+        required: true
+
+slots:
+
+  name:
+    range: string
+
+  description:
+    range: string
+
+  image:
+    range: string
+
+  basePrice:
+    range: integer
+    minimum_value: 0
+
+  isAvailable:
+    range: boolean
+
+  condition:
+    range: string
+
+  website:
+    range: string
+
+  email:
+    range: string
+
+  address:
+    range: string
+
+  logo:
+    range: string
+
+  photos:
+    range: string
+    multivalued: true
+
+  parentCategory:
+    range: Category
+    inlined: true
+
+  subCategories:
+    range: Category
+    multivalued: true
+    inlined: true
+    inverse: parentCategory
+
+  parent:
+    range: Item
+    inlined: true
+
+  category:
+    range: Category
+    inlined: true
+
+  vendor:
+    range: Vendor
+    inlined: true
+
+  tags:
+    range: Tag
+    multivalued: true
+    inlined: true
