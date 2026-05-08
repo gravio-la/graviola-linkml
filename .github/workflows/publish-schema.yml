@@ -1,0 +1,107 @@
+name: Build and deploy Graviola annotation schema
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "annotation-vocab/**"
+      - ".github/workflows/publish-schema.yml"
+  pull_request:
+    paths:
+      - "annotation-vocab/**"
+      - ".github/workflows/publish-schema.yml"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install linkml and mkdocs
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install --quiet "linkml>=1.10.0" "mkdocs-material>=9"
+
+      - name: Validate schema
+        # gen-json-schema exercises the full parser and resolver — acts as a lint pass.
+        run: |
+          .venv/bin/gen-json-schema annotation-vocab/graviola-annotations.yaml \
+            > /dev/null
+
+      - name: Generate artefacts
+        run: |
+          mkdir -p dist
+
+          # OWL / Turtle — primary semantic web format; covers gra:* property definitions
+          .venv/bin/gen-owl \
+            annotation-vocab/graviola-annotations.yaml \
+            -o dist/graviola-annotations.ttl
+
+          # JSON-LD context — gen-jsonld writes to stdout
+          .venv/bin/gen-jsonld \
+            annotation-vocab/graviola-annotations.yaml \
+            > dist/graviola-annotations.jsonld
+
+          # HTML documentation:
+          # 1. gen-doc emits flat markdown (one .md per term + index.md) into a temp dir.
+          # 2. mkdocs-material converts that to flat HTML (use_directory_urls: false keeps
+          #    filenames aligned with the .htaccess rewrite rules).
+          .venv/bin/gen-doc \
+            annotation-vocab/graviola-annotations.yaml \
+            --format markdown \
+            --directory /tmp/gra-md/
+
+          cat > /tmp/mkdocs.yml <<'EOF'
+site_name: Graviola Annotation Vocabulary
+site_url: https://graviola.gra.one/schema/
+docs_dir: /tmp/gra-md
+site_dir: /tmp/gra-site
+theme:
+  name: material
+use_directory_urls: false
+EOF
+
+          .venv/bin/mkdocs build --config-file /tmp/mkdocs.yml --quiet
+          cp -r /tmp/gra-site/. dist/
+
+          # Source YAML — importable by downstream LinkML schemas
+          cp annotation-vocab/graviola-annotations.yaml \
+             dist/graviola-annotations.yaml
+
+          # Content-negotiation rules for the static server
+          cp annotation-vocab/.htaccess dist/.htaccess
+
+      - name: Upload artefacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: schema-dist
+          path: dist/
+          retention-days: 7
+
+  deploy:
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: schema-dist
+          path: dist/
+
+      - uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.PRIVATE_SSH_KEY }}
+
+      - name: Add host key
+        run: ssh-keyscan -H ngcobalt25.manitu.net >> ~/.ssh/known_hosts
+
+      - name: Deploy to server
+        run: |
+          scp -r dist/* \
+            ssh300010221@ngcobalt25.manitu.net:/home/sites/site100029639/web/graviola.gra.one/schema/
